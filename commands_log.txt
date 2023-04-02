@@ -1,0 +1,72 @@
+(venv) sh-5.1$ python3 manage.py shell
+Python 3.10.6 (main, Nov 10 2011, 15:00:00) [GCC 12.2.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from news.models import *
+>>> user1=User.objects.create(username='John', first_name='Snow')
+>>> Author.objects.create(authorUser=user1)
+<Author: Author object (1)>
+>>> user2=User.objects.create(username='Vincent', first_name='Vega')
+>>> Author.objects.create(authorUser=user2)
+<Author: Author object (2)>
+>>> Category.objects.create(name='Sport')
+<Category: Category object (1)>
+>>> Category.objects.create(name='Policy')
+<Category: Category object (2)>
+>>> Category.objects.create(name='Movie')
+<Category: Category object (3)>
+>>> Category.objects.create(name='Theater')
+<Category: Category object (4)>
+>>> Post.objects.create(author=Author.objects.get(authorUser=User.objects.get(username='John')), categoryType='NW', title='news autorally', text='first autorally in year')
+<Post: Post object (1)>
+>>> Post.objects.create(author=Author.objects.get(authorUser=User.objects.get(username='John')), categoryType='AR', title='news movie', text='movie 2023')
+<Post: Post object (2)>
+>>> Post.objects.create(author=Author.objects.get(authorUser=User.objects.get(username='Vincent')), categoryType='AR', title='news policy', text='president of the USA said')
+<Post: Post object (3)>
+>>> p1=Post.objects.get(pk=1)
+>>> p2=Post.objects.get(pk=2)
+>>> p3=Post.objects.get(pk=3)
+>>> c1=Category.objects.get(name='Sport')
+>>> c2=Category.objects.get(name='Movie')
+>>> p1.postCategory.add(c1)
+>>> p2.postCategory.add(c1,c2)
+>>> p3.postCategory.add(c1)
+>>> Comment.objects.create(commentUser=User.objects.get(username='John'), commentPost=Post.objects.get(pk=3), text='Nice ...')
+<Comment: John>
+>>> Comment.objects.create(commentUser=User.objects.get(username='Vincent'), commentPost=Post.objects.get(pk=3), text='Good ...')
+<Comment: Vincent>
+>>> Comment.objects.create(commentUser=User.objects.get(username='Vincent'), commentPost=Post.objects.get(pk=2), text='Good text')
+<Comment: Vincent>
+>>> Comment.objects.create(commentUser=User.objects.get(username='Vincent'), commentPost=Post.objects.get(pk=1), text='Bad news ...')
+<Comment: Vincent>
+>>> Post.objects.get(pk=1).like()
+>>> Post.objects.get(pk=1).like()
+>>> Post.objects.get(pk=2).like()
+>>> Post.objects.get(pk=2).dislike()
+>>> Post.objects.get(pk=3).like()
+>>> Post.objects.get(pk=3).dislike()
+>>> Comment.objects.get(pk=1).like()
+>>> Comment.objects.get(pk=1).dislike()
+>>> Comment.objects.get(pk=2).like()
+>>> Comment.objects.get(pk=2).like()
+>>> Comment.objects.get(pk=3).like()
+>>> Comment.objects.get(pk=3).dislike()
+>>> Author.objects.get(authorUser=User.objects.get(username='John')).update_rating()
+>>> Author.objects.get(authorUser=User.objects.get(username='Vincent')).update_rating()
+>>> a=Author.objects.get(authorUser=User.objects.get(username='John'))
+>>> a.ratingAuthor
+6
+>>> Author.objects.get(authorUser=User.objects.get(username='Vincent')).ratingAuthor
+2
+>>> best_author=Author.objects.all().order_by('-ratingAuthor').values('authorUser', 'ratingAuthor')[0]
+>>> best_author
+{'authorUser': 1, 'ratingAuthor': 6}
+>>> best_post=Post.objects.all().order_by('-rating').values('dateCreation','author','rating','title')[0]
+>>> best_post
+{'dateCreation': datetime.datetime(2023, 4, 2, 6, 50, 47, 467183, tzinfo=datetime.timezone.utc), 'author': 1, 'rating': 2, 'title': 'news autorally'}
+>>> the_post=Post.objects.get(rating=best_post['rating'])
+>>> the_post
+<Post: Post object (1)>
+>>> print(the_post.comment_set.all())
+<QuerySet [<Comment: Vincent>]>
+>>> 
